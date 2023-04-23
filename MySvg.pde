@@ -50,11 +50,12 @@ class MySvg extends MyExporter{
     __add_to_svg(ss);
   }
 
-  void start_path(String c, PVector point_arg)
+  void start_path(color c, PVector point_arg)
   {
     PVector point = point_arg.copy();
       String ss = "";
-      ss += "<path fill='none' stroke='" + c + "' paint-order='fill stroke markers' stroke-opacity='1' stroke-linecap='round' stroke-miterlimit='10' stroke-dasharray=''\n";
+      String col = "rgb(" + red(c) + "," + green(c) + "," + blue(c) + ")";
+      ss += "<path fill='none' stroke='" + col + "' paint-order='fill stroke markers' stroke-opacity='1' stroke-linecap='round' stroke-miterlimit='10' stroke-dasharray=''\n";
       ss += "d= '";
       ss += "M";
       ss += point.x + " " + point.y + " \n";

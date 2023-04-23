@@ -10,7 +10,9 @@ import java.util.*;
 
 
 //String plot_name = "orbits_8x2";
-String plot_name = "plot_face";
+//String plot_name = "plot_face";
+//String plot_name = "roland";
+String plot_name = "spline_test";
 //String plot_name = "hexa_cube_01.A3POR";
 
 
@@ -50,68 +52,105 @@ void handle_svg_g(XML xml_layer, MyPaths paths) {
       for (XML xml_path : xml_layer.getChildren()) {
         LinkedList<MyLine> visible_lines = new LinkedList<MyLine>();
         if (xml_path.getName() == "path") {
+          color c = color(0);
+          if (xml_path.hasAttribute("transform")) {
+            println("TRANSFORM NOT SUPPORTED " + xml_path.getString("transform"));        
+          }
+          if (xml_path.hasAttribute("stroke")) {
+            String stroke = xml_path.getString("style");
+            // not implemented
+          }
+          if (xml_path.hasAttribute("style")) {
+            String style = xml_path.getString("style");
+            style = style.replaceAll("[\n]", " ");
+            style = style.replaceAll(",", " ");
+            style = style.replaceAll(":", " ");
+            style = style.replaceAll(";", " ");
+            Scanner sc = new Scanner(style).useLocale(Locale.US);
+            while (sc.hasNext()) {
+              String next = sc.next();
+              if (next.equals("stroke")) {
+                //c = color(sc.next());
+                // not implemented
+              }
+            }
+          }
           if (xml_path.hasAttribute("d")) {
-            paths.startPath();
-            println("start path");
+            paths.startPath(c);
+            //println("start path");
             String d = xml_path.getString("d");
             //https://regexr.com/
-            float prev_x = 0;
-            float prev_y = 0;
+            PVector prev = new PVector(0,0);
             String prev_command = "";
             //d = d.replaceAll("[MmLl\n,z]", " ");
             d = d.replaceAll("[\n]", " ");
+            d = d.replaceAll(",", " ");
             //d = d.trim();
             PVector first_pos = null;
 
-            d = d.replaceAll("([a-zA-Z])", "$1 ");  // add extra space when character is attached to the numbers
+            d = d.replaceAll("([mMlLhHvVzZcCsSqQtTaA])", "$1 ");  // add extra space when character is attached to the numbers
             d = d.replaceAll("\\s{2,}", " ");       // remove double spaces.
             //d = d.trim();
-            Scanner sc = new Scanner(d).useDelimiter("[, ]+");
+            println(d);
+            Scanner sc = new Scanner(d).useLocale(Locale.US);
             
             // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d
             while (sc.hasNext()) {
+
               
               // determine if the new command is new command, or a new number which uses same command.
               String command = "";
-              if (sc.hasNextFloat()){
+              if (sc.hasNextDouble()){
                 command = new String(prev_command);
+                //println("" + command + " (copy prev)");
               } else {
                 command = sc.next();
                 prev_command = new String(command);
-                println("" + command);
+                //println("" + command);
               }
-              float x = 0;
-              float y = 0;
+              PVector p = new PVector(0,0);
               if (command.equals("M")) {
-                x = sc.nextFloat();
-                y = sc.nextFloat();
+                p.x = (float)sc.nextDouble();
+                p.y = (float)sc.nextDouble();
 
               } else if (command.equals("m")) {
-                x = sc.nextFloat() + prev_x;
-                y = sc.nextFloat() + prev_y;
+                p.x = (float)sc.nextDouble() + prev.x;
+                p.y = (float)sc.nextDouble() + prev.y;
               } else if (command.equals("L")) {
-                x = sc.nextFloat();
-                y = sc.nextFloat();
+                p.x = (float)sc.nextDouble();
+                p.y = (float)sc.nextDouble();
               } else if (command.equals("l")) {
-                x = sc.nextFloat() + prev_x;
-                y = sc.nextFloat() + prev_y;
+                p.x = (float)sc.nextDouble() + prev.x;
+                p.y = (float)sc.nextDouble() + prev.y;
               } else if (command.equals("H")) {
-                x = sc.nextFloat();
-                y = prev_y;
+                p.x = (float)sc.nextDouble();
+                p.y = prev.y;
               } else if (command.equals("h")) {
-                x = sc.nextFloat() + prev_x;
-                y = prev_y;
+                p.x = (float)sc.nextDouble() + prev.x;
+                p.y = prev.y;
               } else if (command.equals("V")) {
-                x = prev_x;
-                y = sc.nextFloat();
+                p.x = prev.x;
+                p.y = (float)sc.nextDouble();
               } else if (command.equals("v")) {
-                x = prev_x;
-                y = sc.nextFloat() + prev_y;
+                p.x = prev.x;
+                p.y = (float)sc.nextDouble() + prev.y;
               } else if ((command.equals("z")) || (command.equals("Z")))  {
-                x = first_pos.x;
-                y = first_pos.y;
-              } else if ((command.equals("c")) || (command.equals("C")))  {
-                println(" do not support BEZIER " );
+                p.x = first_pos.x;
+                p.y = first_pos.y;
+              } else if (command.equals("C"))  {
+                float x1 = (float)sc.nextDouble();
+                float y1 = (float)sc.nextDouble();
+                float x2 = (float)sc.nextDouble();
+                float y2 = (float)sc.nextDouble();
+                p.x = (float)sc.nextDouble();
+                p.y = (float)sc.nextDouble();
+              }  else if (command.equals("c"))  {
+                float x1 = (float)sc.nextDouble()  + prev.x;
+                float y1 = (float)sc.nextDouble()  + prev.y;
+                float x2 = (float)sc.nextDouble()  + prev.x;
+                float y2 = (float)sc.nextDouble()  + prev.y;
+                p.x = (float)sc.nextDouble() + prev.x;;
+                p.y = (float)sc.nextDouble() + prev.y;
               } else if ((command.equals("S")) || (command.equals("s")))  {
                 println(" do not support SMOOTH BEZIER " );
               } else if ((command.equals("q")) || (command.equals("Q")))  {
@@ -121,14 +160,13 @@ void handle_svg_g(XML xml_layer, MyPaths paths) {
               }else if ((command.equals("a")) || (command.equals("A")))  {
                 println(" do not support Elliptical Arc Curve " );
               }
-              println(" " + x + " " + y);
-              paths.addPathPoint(x, y);
+              //println(" " + p.x + " " + p.y);
+              paths.addPathPoint(p);
               
               if (first_pos == null) {
-                first_pos = new PVector(x,y);
+                first_pos = p.copy();
               }
-              prev_x = x; 
-              prev_y = y;
+              prev = p.copy();
 
             }
 
@@ -141,7 +179,8 @@ void handle_svg_g(XML xml_layer, MyPaths paths) {
           float y2 = xml_path.getFloat("y2");
           PVector p1 = new PVector(x1,y1);
           PVector p2 = new PVector(x2,y2);
-          paths.addLine( p1, p2);
+          paths.addLine( p1, p2 );
+          //paths.addPathPoint( p2 );
 
         } else if (xml_path.getName() == "g") {
             handle_svg_g(xml_path, paths);
@@ -149,6 +188,7 @@ void handle_svg_g(XML xml_layer, MyPaths paths) {
         
       }
       paths.endLayer(layer_id);
+      println("layer added, no_lines : " + paths.getNoLines() );
       
 }
 

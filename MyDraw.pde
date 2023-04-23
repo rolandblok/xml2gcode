@@ -23,8 +23,8 @@ class  MyDraw extends MyExporter{
   {
   }
 
-  void start_path(String c, PVector point_arg) {
-    stroke(color(0));
+  void start_path(color c, PVector point_arg) {
+    stroke(c);
     prev_point = point_arg;
   }
   

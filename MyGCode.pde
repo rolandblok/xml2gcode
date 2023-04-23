@@ -112,7 +112,7 @@ M5
     pen_up();
   }
 
-  void start_path(String c, PVector p_pix)
+  void start_path(color c, PVector p_pix)
   {
       PVector p_mm = pix2mm(p_pix);
       String ss = String.format("G1 F%d X%.3f Y%.3f\n", (int)move_speed, p_mm.x, p_mm.y);
