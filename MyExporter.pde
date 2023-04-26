@@ -14,7 +14,7 @@ abstract class  MyExporter{
   abstract void start_layer(String l_id) ;
   abstract void end_layer();
 
-  abstract void start_path(colo c, PVector point_arg);
+  abstract void start_path(color c, PVector point_arg);
 
   abstract void add_path(PVector point_arg);
 

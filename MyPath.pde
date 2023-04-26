@@ -8,7 +8,6 @@ class MyPaths {
   HashMap<String, LinkedList<   LinkedList<      PVector>>> layered_paths_list;
 
   LinkedList<   LinkedList<      PVector>> cur_paths_list; // used to build the path while reading from SVG
-  LinkedList<      PVector>  cur_path;                     // used to build the path while reading from SVG
   LinkedList<      MyLine>   cur_lines;                     // used to build the path while reading from SVG
   color active_color ;
 
@@ -25,20 +24,18 @@ class MyPaths {
 
   public void startPath(color c) {
     active_color = c;
-    cur_path = new LinkedList<      PVector>();
+    LinkedList<      PVector>  cur_path = new LinkedList<      PVector>();
     cur_paths_list.add(cur_path);
-  }
-  public void addPathPoint(PVector p) {
-    PVector pa = p.copy();
-    p.z = active_color;
-    cur_path.add(p.copy());
   }
 
   public void addLine( PVector p1, PVector p2) {
+    println("add line " + p1 + " " + p2);
     cur_lines.add(new MyLine(p1, p2));
   }
+  
   public void endLayer(String layer_id) {
     if (cur_lines.size() > 0) {
+      println("createPathsLayer for " + layer_id);
       createPathsLayer(cur_lines, cur_paths_list);
     }
   }
@@ -67,7 +64,7 @@ class MyPaths {
 
   void getBounds(PVector pix_min, PVector pix_max) {
     PVector grid_min = null;
-    PVector grid_max = null;
+    PVector grid_max = null; //<>//
     for (Map.Entry<String, LinkedList<LinkedList<PVector>>> layer_paths : layered_paths_list.entrySet()) {
       LinkedList<LinkedList<PVector>> paths_list = layer_paths.getValue();
       if (grid_min == null) {
@@ -79,13 +76,14 @@ class MyPaths {
         grid_max.y = paths_list.get(0).get(0).y;
       }
       for (LinkedList<PVector> path : paths_list) {
-        for (PVector p : path) {
-          if (p.x < grid_min.x)  grid_min.x = p.x;
-          if (p.y < grid_min.y)  grid_min.y = p.y;
-          if (p.x > grid_max.x)  grid_max.x = p.x;
-          if (p.y > grid_max.y)  grid_max.y = p.y;
-        }
+          for (PVector p : path) {
+            if (p.x < grid_min.x)  grid_min.x = p.x;
+            if (p.y < grid_min.y)  grid_min.y = p.y;
+            if (p.x > grid_max.x)  grid_max.x = p.x;
+            if (p.y > grid_max.y)  grid_max.y = p.y;
+          }
       }
+      
     }
 
     PVector Smin = grid_min;
@@ -160,7 +158,7 @@ class MyPaths {
 
 
     //Find length 0 lines, kill em.
-    print("Culling zero length lines : from " + visible_lines.size() + " -> ");
+    print(" Culling zero length lines : from " + visible_lines.size() + " -> ");
     ListIterator<MyLine> zero_line_it = visible_lines.listIterator();
     while (zero_line_it.hasNext()) {
       MyLine line_it = zero_line_it.next();

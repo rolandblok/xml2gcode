@@ -161,11 +161,14 @@ void handle_svg_g(XML xml_layer, MyPaths paths) {
                 println(" do not support Elliptical Arc Curve " );
               }
               //println(" " + p.x + " " + p.y);
-              paths.addPathPoint(p);
+              //paths.addPathPoint(p);
               
               if (first_pos == null) {
                 first_pos = p.copy();
+              } else {
+                paths.addLine(prev, p);
               }
+              
               prev = p.copy();
 
             }
