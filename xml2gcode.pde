@@ -101,7 +101,13 @@ void handle_svg_g(XML xml_layer, MyPaths paths) {
               // determine if the new command is new command, or a new number which uses same command.
               String command = "";
               if (sc.hasNextDouble()){
-                command = new String(prev_command);
+                if (prev_command.equals("m")) {
+                  command = "l";
+                } else if (prev_command.equals("M")) {
+                  command = "L";
+                } else {
+                  command = new String(prev_command);
+                }
                 //println("" + command + " (copy prev)");
               } else {
                 command = sc.next();
@@ -119,38 +125,51 @@ void handle_svg_g(XML xml_layer, MyPaths paths) {
               } else if (command.equals("L")) {
                 p.x = (float)sc.nextDouble();
                 p.y = (float)sc.nextDouble();
+                paths.addLine(new MySimpleLine(prev, p));
               } else if (command.equals("l")) {
                 p.x = (float)sc.nextDouble() + prev.x;
                 p.y = (float)sc.nextDouble() + prev.y;
+                paths.addLine(new MySimpleLine(prev, p));
               } else if (command.equals("H")) {
                 p.x = (float)sc.nextDouble();
                 p.y = prev.y;
+                paths.addLine(new MySimpleLine(prev, p));
               } else if (command.equals("h")) {
                 p.x = (float)sc.nextDouble() + prev.x;
                 p.y = prev.y;
+                paths.addLine(new MySimpleLine(prev, p));
               } else if (command.equals("V")) {
                 p.x = prev.x;
                 p.y = (float)sc.nextDouble();
+                paths.addLine(new MySimpleLine(prev, p));
               } else if (command.equals("v")) {
                 p.x = prev.x;
                 p.y = (float)sc.nextDouble() + prev.y;
+                paths.addLine(new MySimpleLine(prev, p));
               } else if ((command.equals("z")) || (command.equals("Z")))  {
                 p.x = first_pos.x;
                 p.y = first_pos.y;
+                paths.addLine(new MySimpleLine(prev, p));
               } else if (command.equals("C"))  {
-                float x1 = (float)sc.nextDouble();
-                float y1 = (float)sc.nextDouble();
-                float x2 = (float)sc.nextDouble();
-                float y2 = (float)sc.nextDouble();
+                PVector p1 = new PVector();
+                p1.x = (float)sc.nextDouble();
+                p1.y = (float)sc.nextDouble();
+                PVector p2 = new PVector();
+                p2.x = (float)sc.nextDouble();
+                p2.y = (float)sc.nextDouble();
                 p.x = (float)sc.nextDouble();
                 p.y = (float)sc.nextDouble();
+                paths.addLine(new MyCubicBezier(prev, p1,p2, p));
               }  else if (command.equals("c"))  {
-                float x1 = (float)sc.nextDouble()  + prev.x;
-                float y1 = (float)sc.nextDouble()  + prev.y;
-                float x2 = (float)sc.nextDouble()  + prev.x;
-                float y2 = (float)sc.nextDouble()  + prev.y;
+                PVector p1 = new PVector();
+                p1.x = (float)sc.nextDouble()  + prev.x;
+                p1.y = (float)sc.nextDouble()  + prev.y;
+                PVector p2 = new PVector();
+                p2.x = (float)sc.nextDouble()  + prev.x;
+                p2.y = (float)sc.nextDouble()  + prev.y;
                 p.x = (float)sc.nextDouble() + prev.x;;
                 p.y = (float)sc.nextDouble() + prev.y;
+                paths.addLine(new MyCubicBezier(prev, p1,p2, p));
               } else if ((command.equals("S")) || (command.equals("s")))  {
                 println(" do not support SMOOTH BEZIER " );
               } else if ((command.equals("q")) || (command.equals("Q")))  {
@@ -161,11 +180,12 @@ void handle_svg_g(XML xml_layer, MyPaths paths) {
                 println(" do not support Elliptical Arc Curve " );
               }
               //println(" " + p.x + " " + p.y);
-              paths.addPathPoint(p);
+              //paths.addPathPoint(p);
               
               if (first_pos == null) {
                 first_pos = p.copy();
-              }
+              } 
+              
               prev = p.copy();
 
             }
@@ -179,7 +199,7 @@ void handle_svg_g(XML xml_layer, MyPaths paths) {
           float y2 = xml_path.getFloat("y2");
           PVector p1 = new PVector(x1,y1);
           PVector p2 = new PVector(x2,y2);
-          paths.addLine( p1, p2 );
+          paths.addLine( new MySimpleLine(p1, p2) );
           //paths.addPathPoint( p2 );
 
         } else if (xml_path.getName() == "g") {
@@ -255,6 +275,7 @@ void saveit(String file_name, String plot_name) {
   PVector min = new PVector();
   PVector max = new PVector();
   paths.getBounds(min, max);
+  println("bounds " + min + " " + max);
 
   String filename = sketchPath() + "/gcode/" + plot_name+name_ext;
 
