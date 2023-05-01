@@ -59,9 +59,9 @@ class MyPaths {
         Iterator<MyLine> vec_it = path.iterator();
         MyLine next = vec_it.next();
         svg.start_path((int)next.p_start().z, next.p_start());
-        svg.add_path( next.p_end());
+        svg.add_path( next);
         while (vec_it.hasNext()) {
-          svg.add_path( vec_it.next().p_end());
+          svg.add_path( vec_it.next());
         }
         svg.end_path();
       }

@@ -16,6 +16,9 @@ class MyGCode extends MyExporter{
   
   int draw_speed;
   int move_speed;
+
+  float   BEZIER_INTERPOLATION_SCALE = 5.;
+  boolean path_just_started;
   
   private PVector pix2mm(PVector pix) {
     PVector mm = PVector.mult(PVector.add(pix, pix_offset), pix2mm_scl).add(mm_offset); 
@@ -47,8 +50,8 @@ class MyGCode extends MyExporter{
 
 
   public MyGCode(PVector pix_min, PVector pix_max, float mm_width, float mm_height) {
-    move_speed = 4000;
-    draw_speed = 2000;
+    move_speed = 8000;
+    draw_speed = 8000;
     
     
     layers_gcode_list = new Vector<Vector<String>>();
@@ -114,17 +117,38 @@ M5
 
   void start_path(color c, PVector p_pix)
   {
+      path_just_started = true;
       PVector p_mm = pix2mm(p_pix);
       String ss = String.format("G1 F%d X%.3f Y%.3f\n", (int)move_speed, p_mm.x, p_mm.y);
       __add_to_svg(ss);
       pen_down();
   }
 
-  void add_path(PVector p_pix)
+  void add_path(MyLine line_arg)
   {
-      PVector p_mm = pix2mm(p_pix);
-      String ss = String.format("G1 F%d X%.3f Y%.3f\n", (int)draw_speed, p_mm.x, p_mm.y);
+    String speed_str = " ";
+    if (path_just_started) {
+      path_just_started  = false;
+      speed_str = String.format(" F%d ", (int)draw_speed);
+    } 
+    if (line_arg instanceof MySimpleLine) {
+      PVector p_mm = pix2mm(line_arg.p_end());
+      String ss = String.format("G1%sX%.3f Y%.3f\n", speed_str, p_mm.x, p_mm.y);
       __add_to_svg(ss);
+    } else if ( line_arg instanceof MyCubicBezier) {
+      MyCubicBezier bezier = (MyCubicBezier) line_arg;
+      float bl = bezier.length();
+      int interp_cnt = max(2,floor(bl/BEZIER_INTERPOLATION_SCALE));
+      for (int i = 0; i <= interp_cnt; i ++) {
+        float f = (float)i / interp_cnt;
+        PVector p = bezier.p_at(f);
+        PVector p_mm = pix2mm(p);
+        String ss = String.format("G1%sX%.3f Y%.3f\n", speed_str, p_mm.x, p_mm.y);
+        speed_str = " ";
+        path_just_started = false;
+        __add_to_svg(ss);
+      }
+    }
   }
 
   void end_path()

@@ -5,11 +5,11 @@ class  MyDraw extends MyExporter{
   PVector pix_min;
   PVector pix_max;
   
+  float   BEZIER_INTERPOLATION_SCALE = 5.;
   
   MyDraw(PVector pix_min, PVector pix_max) {
     this.pix_min = pix_min;
     this.pix_max = pix_max;
-    this.prev_point = null;
   }
 
   void finalize() {
@@ -25,13 +25,31 @@ class  MyDraw extends MyExporter{
 
   void start_path(color c, PVector point_arg) {
     stroke(c);
-    prev_point = point_arg;
   }
   
 
-  void add_path(PVector point_arg) {
-    line(prev_point.x, prev_point.y, point_arg.x, point_arg.y);
-    prev_point = point_arg;
+  void add_path(MyLine line_arg) {
+    if (line_arg instanceof MySimpleLine) {
+      beginShape();
+      vertex(line_arg.p_start().x, line_arg.p_start().y);
+      vertex(line_arg.p_end().x, line_arg.p_end().y);
+      endShape();
+    } else if ( line_arg instanceof MyCubicBezier) {
+      MyCubicBezier bezier = (MyCubicBezier) line_arg;
+      float bl = bezier.length();
+      int interp_cnt = max(2,floor(bl/BEZIER_INTERPOLATION_SCALE));
+      
+      noFill();
+      beginShape();
+      
+      for (int i = 0; i <= interp_cnt; i ++) {
+        float f = (float)i / interp_cnt;
+        PVector p = bezier.p_at(f);
+        vertex(p.x, p.y);
+      }
+      endShape();
+      
+    }
   }
 
   void end_path() {}

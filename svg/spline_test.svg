@@ -3,18 +3,18 @@
  id='layer1'>
 <path fill='none' stroke='rgb(0.0,0.0,0.0)' paint-order='fill stroke markers' stroke-opacity='1' stroke-linecap='round' stroke-miterlimit='10' stroke-dasharray=''
 d= 'M9.865979 141.18556 
-L63.958763 91.175255 
-L100.020615 109.20618 
-L147.64948 124.85567 
+L 63.958763 91.175255 
+C 63.958763,91.175255  83.69072,133.70102  100.020615,109.20618 
+C 116.3505,84.711334  147.64948,124.85567  147.64948,124.85567 
  '  />
 <path fill='none' stroke='rgb(0.0,0.0,0.0)' paint-order='fill stroke markers' stroke-opacity='1' stroke-linecap='round' stroke-miterlimit='10' stroke-dasharray=''
 d= 'M43.206184 223.51546 
-L132.0 222.83505 
+C 72.46392,166.02061  138.35681,172.32541  132.0,222.83505 
  '  />
 <path fill='none' stroke='rgb(0.0,0.0,0.0)' paint-order='fill stroke markers' stroke-opacity='1' stroke-linecap='round' stroke-miterlimit='10' stroke-dasharray=''
 d= 'M26.876287 275.567 
-L86.07217 248.6907 
-L119.75257 268.42267 
+C 33.340206,244.60823  86.623055,216.9088  86.07217,248.6907 
+C 85.33154,291.41888  117.433685,291.0994  119.75257,268.42267 
  '  />
 </g>
 </svg>

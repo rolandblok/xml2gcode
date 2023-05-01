@@ -16,7 +16,7 @@ abstract class  MyExporter{
 
   abstract void start_path(color c, PVector point_arg);
 
-  abstract void add_path(PVector point_arg);
+  abstract void add_path(MyLine line_arg);
 
   abstract void end_path();
 

@@ -62,11 +62,18 @@ class MySvg extends MyExporter{
       __add_to_svg(ss);
   }
 
-  void add_path(PVector point_arg)
+  void add_path(MyLine line_arg)
   {
-    PVector point = point_arg.copy();
-      String ss = "L";
-      ss += point.x + " " + point.y + " \n";
+      String ss = "";
+      if (line_arg instanceof MySimpleLine) {
+        ss += "L " + line_arg.p_end().x + " " + line_arg.p_end().y + " \n";
+      } else if ( line_arg instanceof MyCubicBezier) {
+        MyCubicBezier bezier = (MyCubicBezier) line_arg;
+        ss += "C " + bezier.p1().x + "," + bezier.p1().y ;
+        ss += "  " + bezier.p2().x + "," + bezier.p2().y ;
+        ss += "  " + bezier.p_end().x + "," + bezier.p_end().y + " \n";
+        
+      }
       __add_to_svg(ss);
   }
 

@@ -5,12 +5,12 @@ abstract class MyLine {
   abstract void    reverse() ;
   abstract PVector p_start();
   abstract PVector p_end();
-
+  
   abstract PVector p_at(float t);
   abstract PVector direction();
+  abstract float   length();
   abstract String  toString();
   abstract boolean equals(Object obj);
-  abstract boolean curvy();
   
 }
 
@@ -37,12 +37,12 @@ class MySimpleLine extends MyLine {
   PVector p_end(){
     return ps[1];
   }
+  float length(){
+    return PVector.sub(ps[1], ps[0]).mag();
+  }
 
   PVector p_at(float t) {
     return ps[0].lerp(ps[1], t);
-  }
-  boolean curvy() {
-    return false;
   }
 
   void reverse() {
@@ -90,6 +90,16 @@ class MyCubicBezier extends MyLine {
   PVector direction() {
     return PVector.sub(ps[3], ps[0]);
   }
+  float length() {
+    //https://stackoverflow.com/questions/29438398/cheap-way-of-calculating-cubic-bezier-length
+    float  chord = PVector.sub(ps[3],ps[0]).mag();
+    
+    float  cont_net = PVector.sub(ps[1], ps[0]).mag() + PVector.sub(ps[2], ps[1]).mag() +  PVector.sub(ps[3], ps[2]).mag();
+
+    float app_arc_length = (cont_net + chord) / 2;
+    return app_arc_length;
+    
+  }
   
   PVector p_start() {
     return ps[0];
@@ -97,11 +107,15 @@ class MyCubicBezier extends MyLine {
   PVector p_end(){
     return ps[3];
   }
+  PVector p1(){
+    return ps[1];
+  }
+  PVector p2(){
+    return ps[2];
+  }
+
 
   
-  boolean curvy() {
-    return true;
-  }
   @Override
   public String toString() {
     return "Bezier p0: " + ps[0] + " ;p1: " +ps[1] + " ;p2: " + ps[2]  + " ;p3: " + ps[3];

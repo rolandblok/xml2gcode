@@ -11,7 +11,7 @@ import java.util.*;
 
 //String plot_name = "orbits_8x2";
 //String plot_name = "plot_face";
-//String plot_name = "roland";
+//String plot_name = "roland4 nobg";
 String plot_name = "spline_test";
 //String plot_name = "hexa_cube_01.A3POR";
 
@@ -91,7 +91,7 @@ void handle_svg_g(XML xml_layer, MyPaths paths) {
             d = d.replaceAll("([mMlLhHvVzZcCsSqQtTaA])", "$1 ");  // add extra space when character is attached to the numbers
             d = d.replaceAll("\\s{2,}", " ");       // remove double spaces.
             //d = d.trim();
-            println(d);
+            //println(d);
             Scanner sc = new Scanner(d).useLocale(Locale.US);
             
             // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d
@@ -238,10 +238,6 @@ void saveit(String file_name, String plot_name) {
 
   println("no paths " + paths.getNoPaths());
   println("no lines " + paths.getNoLines());
-
-
-
-
 
 
   String selection = new UiBooster().showSelectionDialog(
