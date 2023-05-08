@@ -4,14 +4,20 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
+boolean INVERT_X = false;
+boolean INVERT_Y = true;
 
 class MyGCode extends MyExporter{
   Vector<Vector<String>> layers_gcode_list;
+
   int     cur_layer;
   PVector pix_min;
+  float   cur_length;
+  PVector last_point_mm;
   
   float pix2mm_scl ;
   PVector pix_offset;
+  PVector pix_scl;
   PVector mm_offset;
   
   int draw_speed;
@@ -21,8 +27,9 @@ class MyGCode extends MyExporter{
   boolean path_just_started;
   
   private PVector pix2mm(PVector pix) {
-    PVector mm = PVector.mult(PVector.add(pix, pix_offset), pix2mm_scl).add(mm_offset); 
     
+    PVector p_scl = new PVector(pix.x * pix_scl.x, pix.y * pix_scl.y); 
+    PVector mm = PVector.mult(PVector.add(p_scl, pix_offset), pix2mm_scl).add(mm_offset); 
     return mm; 
   }
   
@@ -59,8 +66,11 @@ class MyGCode extends MyExporter{
   
     // start determine PIX2MM 
     pix2mm_scl = 1.;
+    pix_scl = new PVector(1., 1.);
     mm_offset = new PVector(0,0);
+    
     pix_offset = PVector.mult(pix_min, -1.);
+
 
     // determine the scaling
     PVector pix_size = pix2mm(pix_max);
@@ -85,6 +95,14 @@ class MyGCode extends MyExporter{
     PVector mm_size = pix2mm(pix_max);
     mm_offset = PVector.sub(paper_size, mm_size).mult(0.5);
     
+    if ( INVERT_Y ) {
+      pix_scl.y = -1;
+      pix_offset.y = -pix_offset.y + (pix_max.y-pix_min.y);
+    }
+    if ( INVERT_X ) {
+      pix_scl.x = -1;
+      pix_offset.x = -pix_offset.x + (pix_max.x-pix_min.x);
+    }
 
 /*   
 G1 F2000 x0 Y0
@@ -104,6 +122,8 @@ M5
 
   void start_layer(String layer_id) {
     cur_layer ++;
+    cur_length = 0;
+
     Vector<String> gcode_list = new Vector<String>();
     layers_gcode_list.add(gcode_list);
     
@@ -112,6 +132,7 @@ M5
     
   }
   void end_layer() {
+    println("layer path length: " + floor(cur_length) + " mm");    
     pen_up();
   }
 
@@ -119,6 +140,8 @@ M5
   {
       path_just_started = true;
       PVector p_mm = pix2mm(p_pix);
+      last_point_mm = p_mm.copy();
+
       String ss = String.format("G1 F%d X%.3f Y%.3f\n", (int)move_speed, p_mm.x, p_mm.y);
       __add_to_svg(ss);
       pen_down();
@@ -135,6 +158,9 @@ M5
       PVector p_mm = pix2mm(line_arg.p_end());
       String ss = String.format("G1%sX%.3f Y%.3f\n", speed_str, p_mm.x, p_mm.y);
       __add_to_svg(ss);
+      
+      cur_length += PVector.dist(p_mm, last_point_mm);
+      last_point_mm = p_mm.copy();
     } else if ( line_arg instanceof MyCubicBezier) {
       MyCubicBezier bezier = (MyCubicBezier) line_arg;
       float bl = bezier.length();
@@ -147,6 +173,10 @@ M5
         speed_str = " ";
         path_just_started = false;
         __add_to_svg(ss);
+        
+        cur_length += PVector.dist(p_mm, last_point_mm);
+        last_point_mm = p_mm.copy();
+        
       }
     }
   }

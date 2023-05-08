@@ -12,9 +12,9 @@ import java.util.*;
 //String plot_name = "orbits_8x2";
 //String plot_name = "plot_face";
 //String plot_name = "roland4 nobg";
-String plot_name = "spline_test";
+//String plot_name = "spline_test";
 //String plot_name = "hexa_cube_01.A3POR";
-
+String plot_name = "madelief_1 nobg SQR_contr_5";
 
 MyDraw my_draw;
 
