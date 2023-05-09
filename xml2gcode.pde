@@ -6,15 +6,15 @@ import java.util.*;
 
 
 
-
+boolean USE_NEWEST_FILE = true;
 
 
 //String plot_name = "orbits_8x2";
 //String plot_name = "plot_face";
-//String plot_name = "roland4 nobg";
+String plot_name = "roland4 nobg";
 //String plot_name = "spline_test";
 //String plot_name = "hexa_cube_01.A3POR";
-String plot_name = "madelief_1 nobg SQR_contr_5";
+//String plot_name = "madelief_1 nobg SQR_contr_5";
 
 MyDraw my_draw;
 
@@ -24,9 +24,21 @@ void setup() {
   surface.setTitle("xml 2 GCODE");
 
   Locale.setDefault(Locale.US);
+  
+  String file_name = "";
+  
+  if (USE_NEWEST_FILE) {
+    File f = getLastModified(sketchPath() + "\\svg_in\\");
+    file_name = "" + f;
+    plot_name = stripExtension(f.getName());
+    
+    println("using newest file : " + file_name + "  ;plot_name : " + plot_name);
+    
+    
+  } else {
 
-  //String file_name = "C:\\Users\\roland\\Downloads\\" + plot_name + ".svg";
-  String file_name = sketchPath() + "\\svg_in\\"+ plot_name + ".svg";
+    file_name = sketchPath() + "\\svg_in\\"+ plot_name + ".svg";
+  }
 
   saveit(file_name, plot_name);
 

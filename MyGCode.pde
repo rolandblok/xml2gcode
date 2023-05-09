@@ -7,6 +7,8 @@ import java.util.*;
 boolean INVERT_X = false;
 boolean INVERT_Y = true;
 
+PVector END = new PVector(400,400);
+
 class MyGCode extends MyExporter{
   Vector<Vector<String>> layers_gcode_list;
 
@@ -116,6 +118,10 @@ M5
 
 
   void finalize() {
+    String ss = String.format("G1 F%d X%.3f Y%.3f\n", (int)draw_speed, END.x, END.y);
+    __add_to_svg(ss);
+
+    
   }
 
 
